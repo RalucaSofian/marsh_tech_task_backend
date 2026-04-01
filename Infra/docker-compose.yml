@@ -1,0 +1,16 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=strongPwdFor@Server1
+      - MSSQL_PID=Evaluation
+    ports:
+      - '1433:1433'
+    volumes:
+      - sqlserverdata:/var/lib/mssql
+    restart: unless-stopped
+
+volumes:
+  sqlserverdata:
+    driver: local
