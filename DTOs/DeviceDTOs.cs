@@ -3,6 +3,19 @@ using DeviceManagement.Models;
 
 namespace DeviceManagement.DTOs;
 
+public class CreateDeviceInputDTO
+{
+    public string Name { get; set; } = default!;
+    public string Manufacturer { get; set; } = default!;
+    public string Type { get; set; } = default!;
+    public string OperatingSystem { get; set; } = default!;
+    public string? OSVersion { get; set; }
+    public string Processor { get; set; } = default!;
+    public int RAM { get; set; } = default!;
+    public int? UserId { get; set; }
+    public string? Description { get; set; }
+}
+
 public class DeviceOutputDTO
 {
     public int Id { get; private set; } = default!;

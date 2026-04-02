@@ -55,8 +55,8 @@ public class UserController : ControllerBase
     {
         var newUser = new User
         {
-            Name = createUserInput.Name,
-            Role = Enum.Parse<UserRole>(createUserInput.Role.ToUpper()),
+            Name     = createUserInput.Name,
+            Role     = Enum.Parse<UserRole>(createUserInput.Role.ToUpper()),
             Location = createUserInput.Location
         };
 

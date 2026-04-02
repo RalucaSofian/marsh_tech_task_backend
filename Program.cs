@@ -1,6 +1,8 @@
+using Microsoft.EntityFrameworkCore;
+
 using DeviceManagement.Data;
 using DeviceManagement.Services;
-using Microsoft.EntityFrameworkCore;
+
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<DeviceManagementDb>(options =>
