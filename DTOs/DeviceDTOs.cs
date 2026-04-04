@@ -28,6 +28,7 @@ public class DeviceOutputDTO
     public int RAM { get; private set; } = default!;
     public int? UserId { get; private set; }
     public string? Description { get; private set; }
+    public UserOutputDTO? AssignedUser { get; private set; }
 
     public static DeviceOutputDTO FromDbDevice(Device device)
     {
@@ -42,7 +43,8 @@ public class DeviceOutputDTO
             Processor = device.Processor,
             RAM = device.RAM,
             UserId = device.UserId,
-            Description = device.Description
+            Description = device.Description,
+            AssignedUser = device.AssignedUser != null ? UserOutputDTO.FromDbUser(device.AssignedUser) : null
         };
     }
 }

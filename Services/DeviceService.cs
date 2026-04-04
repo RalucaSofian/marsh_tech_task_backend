@@ -19,7 +19,7 @@ public class DeviceService
 
     public async Task<List<Device>> GetAllDevices()
     {
-        return await _context.Devices.OrderBy(d => d.Id).ToListAsync();
+        return await _context.Devices.OrderBy(d => d.Id).Include(d => d.AssignedUser).ToListAsync();
     }
 
     public async Task<Device?> GetDevice(int id)

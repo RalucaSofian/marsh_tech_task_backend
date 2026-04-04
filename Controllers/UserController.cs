@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Cors;
 
 using DeviceManagement.Services;
 using DeviceManagement.DTOs;
@@ -9,6 +10,7 @@ using DeviceManagement.Models;
 namespace DeviceManagement.Controllers;
 
 [ApiController]
+[EnableCors("default")]
 [Route("/users")]
 public class UserController : ControllerBase
 {

@@ -20,6 +20,8 @@ public class Device
     public int? UserId { get; set; }
     public string? Description { get; set; }
 
+    public virtual User? AssignedUser { get; set; }
+
 }
 
 public enum DeviceType { Default, Laptop, Phone, Tablet }
