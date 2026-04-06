@@ -117,6 +117,6 @@ public class DeviceController : ControllerBase
         }
 
         await _deviceService.DeleteDevice(id);
-        return Ok();
+        return NoContent();
     }
 }
