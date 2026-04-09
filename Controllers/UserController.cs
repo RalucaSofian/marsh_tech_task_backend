@@ -1,16 +1,21 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 using DeviceManagement.Services;
 using DeviceManagement.DTOs;
 using DeviceManagement.Models;
+using DeviceManagement.Utilities;
 
 
 namespace DeviceManagement.Controllers;
 
 [ApiController]
 [EnableCors("default")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Route("/users")]
 public class UserController : ControllerBase
 {
@@ -39,9 +44,23 @@ public class UserController : ControllerBase
 
     [HttpGet]
     [Route("{id}")]
-    public async Task<ActionResult<UserOutputDTO>> GetUser([FromRoute] int id)
+    public async Task<ActionResult<UserOutputDTO>> GetUser([FromRoute] string id)
     {
         var user = await _userService.GetUser(id);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        var outputUser = UserOutputDTO.FromDbUser(user);
+        return Ok(outputUser);
+    }
+
+    [HttpGet]
+    [Route("me")]
+    public async Task<ActionResult<UserOutputDTO>> GetCurrentUser()
+    {
+        var user = await AuthUtils.GetCurrentUser(_userService, HttpContext.User);
         if (user == null)
         {
             return NotFound();
@@ -57,8 +76,8 @@ public class UserController : ControllerBase
     {
         var newUser = new User
         {
-            Name     = createUserInput.Name,
-            Role     = Enum.Parse<UserRole>(createUserInput.Role.ToUpper()),
+            Name = createUserInput.Name,
+            Role = Enum.Parse<UserRole>(createUserInput.Role.ToUpper()),
             Location = createUserInput.Location
         };
 
@@ -74,7 +93,7 @@ public class UserController : ControllerBase
 
     [HttpPatch]
     [Route("{id}")]
-    public async Task<ActionResult<UserOutputDTO>> EditUser([FromRoute] int id)
+    public async Task<ActionResult<UserOutputDTO>> EditUser([FromRoute] string id)
     {
         var existingUser = await _userService.GetUser(id);
         if (existingUser == null)
@@ -103,7 +122,7 @@ public class UserController : ControllerBase
 
     [HttpDelete]
     [Route("{id}")]
-    public async Task<ActionResult> DeleteUser([FromRoute] int id)
+    public async Task<ActionResult> DeleteUser([FromRoute] string id)
     {
         var existingUser = await _userService.GetUser(id);
         if (existingUser == null)

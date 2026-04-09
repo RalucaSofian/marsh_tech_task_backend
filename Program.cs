@@ -2,10 +2,11 @@ using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
 using Microsoft.AspNetCore.Identity;
 using System.Text;
+using Microsoft.IdentityModel.Tokens;
 
 using DeviceManagement.Data;
 using DeviceManagement.Services;
-using Microsoft.IdentityModel.Tokens;
+
 
 
 Env.Load();
@@ -20,7 +21,8 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<DeviceService>();
 
 builder.Services.AddIdentity<DeviceManagement.Models.User, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
-    .AddDefaultTokenProviders();
+    .AddDefaultTokenProviders()
+    .AddEntityFrameworkStores<DeviceManagementDb>();
 
 builder.Services.AddCors(options =>
 {
@@ -63,7 +65,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddAuthentication()
 .AddJwtBearer(options =>
 {
-    options.Authority = "http://localhost:5128";
+    options.Authority = "http://localhost:5047";
     options.RequireHttpsMetadata = false;
 
     var envSecretKey = Environment.GetEnvironmentVariable("SECRET_KEY");
@@ -82,10 +84,16 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
+
+app.UseCookiePolicy();
+
 app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseCors("default");
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapStaticAssets();
 

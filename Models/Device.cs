@@ -17,7 +17,7 @@ public class Device
     public string Processor { get; set; } = default!;
     public int RAM { get; set; } = default!;
 
-    public int? UserId { get; set; }
+    public string? UserId { get; set; }
     public string? Description { get; set; }
 
     public virtual User? AssignedUser { get; set; }

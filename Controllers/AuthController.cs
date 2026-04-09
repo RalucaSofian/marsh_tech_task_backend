@@ -59,7 +59,14 @@ public class AuthController : ControllerBase
             return BadRequest();
         }
 
-        var newUser = new User { Name = signupInput.Name, Email = signupInput.Email, Role = UserRole.USER, Location = "Not Set" };
+        var newUser = new User
+        {
+            Name = signupInput.Name,
+            Email = signupInput.Email,
+            UserName = signupInput.Email,
+            Role = UserRole.USER,
+            Location = signupInput.Location,
+        };
         var result = await _userManager.CreateAsync(newUser, signupInput.Password);
         if (!result.Succeeded)
         {
@@ -85,7 +92,7 @@ public class AuthController : ControllerBase
     private string CreateJWT(User userInfo)
     {
         var claims = new[] {
-            new Claim(JwtRegisteredClaimNames.Sub, userInfo.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.Sub, userInfo.Id),
             new Claim(JwtRegisteredClaimNames.Email, userInfo.Email!),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };

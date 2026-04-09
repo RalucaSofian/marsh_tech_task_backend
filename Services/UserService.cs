@@ -22,7 +22,7 @@ public class UserService
         return await _context.Users.OrderBy(u => u.Id).ToListAsync();
     }
 
-    public async Task<User?> GetUser(int id)
+    public async Task<User?> GetUser(string id)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
         if (user == null)
@@ -66,7 +66,7 @@ public class UserService
         return editedUser;
     }
 
-    public async Task DeleteUser(int id)
+    public async Task DeleteUser(string id)
     {
         var user = await _context.Users.FindAsync(id);
         if (user != null)
@@ -77,7 +77,7 @@ public class UserService
     }
 
 
-    private bool UserExists(int id)
+    private bool UserExists(string id)
     {
         return _context.Users.Any(e => e.Id == id);
     }

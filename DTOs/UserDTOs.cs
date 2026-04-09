@@ -12,7 +12,7 @@ public class CreateUserInputDTO
 
 public class UserOutputDTO
 {
-    public int Id { get; private set; } = default!;
+    public string Id { get; private set; } = default!;
     public string Name { get; private set; } = default!;
     public string Role { get; private set; } = default!;
     public string Location { get; private set; } = default!;

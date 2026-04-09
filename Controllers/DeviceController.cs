@@ -1,24 +1,30 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 
 using DeviceManagement.Services;
 using DeviceManagement.DTOs;
 using DeviceManagement.Models;
+using DeviceManagement.Utilities;
 
 
 namespace DeviceManagement.Controllers;
 
 [ApiController]
 [EnableCors("default")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Route("/devices")]
 public class DeviceController : ControllerBase
 {
     private readonly DeviceService _deviceService;
+    private readonly UserService _userService;
 
-    public DeviceController(DeviceService deviceService)
+    public DeviceController(DeviceService deviceService, UserService userService)
     {
         _deviceService = deviceService;
+        _userService = userService;
     }
 
 
@@ -54,17 +60,28 @@ public class DeviceController : ControllerBase
     [Route("")]
     public async Task<ActionResult<DeviceOutputDTO>> CreateDevice(CreateDeviceInputDTO createDeviceInput)
     {
+        var crtUser = await AuthUtils.GetCurrentUser(_userService, HttpContext.User);
+        if (crtUser == null)
+        {
+            return BadRequest();
+        }
+
+        if (crtUser.Role != UserRole.ADMIN)
+        {
+            return BadRequest();
+        }
+
         var newDevice = new Device
         {
-            Name            = createDeviceInput.Name,
-            Manufacturer    = createDeviceInput.Manufacturer,
-            Type            = Enum.Parse<DeviceType>(createDeviceInput.Type),
+            Name = createDeviceInput.Name,
+            Manufacturer = createDeviceInput.Manufacturer,
+            Type = Enum.Parse<DeviceType>(createDeviceInput.Type),
             OperatingSystem = createDeviceInput.OperatingSystem,
-            OSVersion       = createDeviceInput.OSVersion,
-            Processor       = createDeviceInput.Processor,
-            RAM             = createDeviceInput.RAM,
-            UserId          = createDeviceInput.UserId,
-            Description     = createDeviceInput.Description
+            OSVersion = createDeviceInput.OSVersion,
+            Processor = createDeviceInput.Processor,
+            RAM = createDeviceInput.RAM,
+            UserId = createDeviceInput.UserId,
+            Description = createDeviceInput.Description
         };
 
         var createdDevice = await _deviceService.CreateDevice(newDevice);
@@ -85,6 +102,21 @@ public class DeviceController : ControllerBase
         if (existingDevice == null)
         {
             return NotFound();
+        }
+
+        var crtUser = await AuthUtils.GetCurrentUser(_userService, HttpContext.User);
+        if (crtUser == null)
+        {
+            return BadRequest();
+        }
+
+        if (crtUser.Role == UserRole.USER)
+        {
+            if ((existingDevice.AssignedUser?.Id != crtUser.Id) ||
+                (existingDevice.AssignedUser != null))
+            {
+                return BadRequest();
+            }
         }
 
         var bodyReader = new StreamReader(Request.Body);

@@ -12,7 +12,7 @@ public class CreateDeviceInputDTO
     public string? OSVersion { get; set; }
     public string Processor { get; set; } = default!;
     public int RAM { get; set; } = default!;
-    public int? UserId { get; set; }
+    public string? UserId { get; set; }
     public string? Description { get; set; }
 }
 
@@ -26,7 +26,7 @@ public class DeviceOutputDTO
     public string? OSVersion { get; private set; }
     public string Processor { get; private set; } = default!;
     public int RAM { get; private set; } = default!;
-    public int? UserId { get; private set; }
+    public string? UserId { get; private set; }
     public string? Description { get; private set; }
     public UserOutputDTO? AssignedUser { get; private set; }
 
