@@ -56,6 +56,24 @@ public class DeviceController : ControllerBase
         return Ok(outputDevice);
     }
 
+    [HttpGet]
+    [Route("{id}/ai_descr")]
+    public async Task<ActionResult<string>> GetGeneratedDescription([FromRoute] int id)
+    {
+        var device = await _deviceService.GetDevice(id);
+        if (device == null)
+        {
+            return NotFound();
+        }
+
+        var genaiInput = device.Name + device.Manufacturer +
+            device.OperatingSystem + device.Type.ToString() +
+            device.RAM.ToString() + "GB RAM" + device.Processor;
+
+        var generatedDescription = await GenAIutils.GenDescription(genaiInput);
+        return Ok(generatedDescription);
+    }
+
     [HttpPost]
     [Route("")]
     public async Task<ActionResult<DeviceOutputDTO>> CreateDevice(CreateDeviceInputDTO createDeviceInput)
@@ -112,8 +130,8 @@ public class DeviceController : ControllerBase
 
         if (crtUser.Role == UserRole.USER)
         {
-            if ((existingDevice.AssignedUser?.Id != crtUser.Id) ||
-                (existingDevice.AssignedUser != null))
+            if ((existingDevice.AssignedUser != null) &&
+                (existingDevice.AssignedUser?.Id != crtUser.Id))
             {
                 return BadRequest();
             }
@@ -142,6 +160,17 @@ public class DeviceController : ControllerBase
     [Route("{id}")]
     public async Task<ActionResult> DeleteDevice([FromRoute] int id)
     {
+        var crtUser = await AuthUtils.GetCurrentUser(_userService, HttpContext.User);
+        if (crtUser == null)
+        {
+            return BadRequest();
+        }
+
+        if (crtUser.Role != UserRole.ADMIN)
+        {
+            return BadRequest();
+        }
+
         var existingDevice = await _deviceService.GetDevice(id);
         if (existingDevice == null)
         {
