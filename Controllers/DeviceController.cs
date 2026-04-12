@@ -30,12 +30,17 @@ public class DeviceController : ControllerBase
 
     [HttpGet]
     [Route("")]
-    public async Task<ActionResult<List<DeviceOutputDTO>>> GetDevices()
+    public async Task<ActionResult<List<DeviceOutputDTO>>> GetDevices([FromQuery(Name = "search")] string? searchString)
     {
-        var dbDevicesList = await _deviceService.GetAllDevices();
-        if (dbDevicesList == null)
+        List<Device> dbDevicesList;
+
+        if (string.IsNullOrEmpty(searchString))
         {
-            return NotFound();
+            dbDevicesList = await _deviceService.GetAllDevices();
+        }
+        else
+        {
+            dbDevicesList = await _deviceService.SearchDevices(searchString);
         }
 
         var outputDevices = dbDevicesList.Select(DeviceOutputDTO.FromDbDevice).ToList();

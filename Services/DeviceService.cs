@@ -17,6 +17,37 @@ public class DeviceService
     }
 
 
+    public async Task<List<Device>> SearchDevices(string searchString)
+    {
+        var result = await _context.Devices.FromSql($"""
+            SELECT outerDevice.*
+            FROM (SELECT [key], Sum([rank]) AS WeightedRank
+                    FROM (
+                    SELECT [key], [rank] * 50 as [rank]
+                    FROM Freetexttable(dbo.Devices, [Name], {searchString})
+                    UNION ALL
+
+                    SELECT [key], [rank] * 20 as [rank]
+                    FROM Freetexttable(dbo.Devices, [Manufacturer], {searchString})
+                    UNION ALL
+
+                    SELECT Id as [key], 15 as [rank]
+                    FROM Devices WHERE RAM = TRY_PARSE({searchString} AS int)
+                    UNION ALL
+
+                    SELECT [key], [rank] * 15 as [rank]
+                    FROM Freetexttable(dbo.Devices, [Processor], {searchString})
+                    )innerSearch
+            GROUP BY [key]) ranksGroupedByDeviceID
+            INNER JOIN dbo.Devices outerDevice ON outerDevice.Id = ranksGroupedByDeviceID.[key]
+            ORDER BY WeightedRank DESC;
+        """).ToListAsync();
+
+
+        return result;
+
+    }
+
     public async Task<List<Device>> GetAllDevices()
     {
         return await _context.Devices.OrderBy(d => d.Id).Include(d => d.AssignedUser).ToListAsync();

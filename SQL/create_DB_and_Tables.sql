@@ -235,3 +235,38 @@ END;
 
 COMMIT;
 GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260412141718_FullTextSearchSupport'
+)
+BEGIN
+
+                    IF NOT EXISTS (
+                        SELECT * FROM sys.fulltext_catalogs
+                        WHERE [name] = N'DevicesFullTextCatalog'
+                    )
+                    BEGIN
+                        CREATE FULLTEXT CATALOG DevicesFullTextCatalog
+                    END
+
+                    CREATE FULLTEXT INDEX ON Devices
+                    (
+                        Name LANGUAGE 1033,
+                        Manufacturer LANGUAGE 1033,
+                        Processor LANGUAGE 1033
+                    ) KEY INDEX PK_Devices ON DevicesFullTextCatalog
+                    WITH CHANGE_TRACKING AUTO;
+                
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260412141718_FullTextSearchSupport'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20260412141718_FullTextSearchSupport', N'9.0.0');
+END;
+GO
